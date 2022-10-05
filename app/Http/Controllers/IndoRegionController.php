@@ -20,7 +20,7 @@ class IndoRegionController extends Controller
     public function getKabupaten(Request $request)
     {
         $id_provinsi = $request->id_provinsi;
-        $kabupaten = Regency::where('province_id', $id_provinsi)->get();
+        $kabupaten = Regency::where('province_id', $id_provinsi)->orderBy('name', 'asc')->get();
 
         echo "<option disabled selected>--Pilih--</option>";
         foreach ($kabupaten as $kab) {
@@ -31,7 +31,7 @@ class IndoRegionController extends Controller
     public function getKecamatan(Request $request)
     {
         $id_kabupaten = $request->id_kabupaten;
-        $kecamatan = District::where('regency_id', $id_kabupaten)->get();
+        $kecamatan = District::where('regency_id', $id_kabupaten)->orderBy('name', 'asc')->get();
 
         echo "<option disabled selected>--Pilih--</option>";
         foreach ($kecamatan as $kec) {
@@ -42,7 +42,7 @@ class IndoRegionController extends Controller
     public function getDesa(Request $request)
     {
         $id_kecamatan = $request->id_kecamatan;
-        $desa = Village::where('district_id', $id_kecamatan)->get();
+        $desa = Village::where('district_id', $id_kecamatan)->orderBy('name', 'asc')->get();
 
         echo "<option disabled selected>--Pilih--</option>";
         foreach ($desa as $d) {

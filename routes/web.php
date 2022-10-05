@@ -16,12 +16,12 @@ use Spatie\Permission\Models\Permission;
 |
 */
 
-Route::get('/login', function () {
-    // $role = Role::find(2);
-    // $role->givePermissionTo('create post', 'delete post');
+// Route::get('/login', function () {
+//     // $role = Role::find(2);
+//     // $role->givePermissionTo('create post', 'delete post');
 
-    return view('auth.login');
-});
+//     return view('auth.login');
+// });
 
 Auth::routes();
 
@@ -64,12 +64,30 @@ Route::middleware('has.role')->group(function () {
     });
 
     Route::prefix('team')->middleware('permission:create team')->group(function () {
-        Route::get('/', [App\Http\Controllers\AnggotaController::class, 'index'])->name('team.index');
-        Route::get('/filter', [App\Http\Controllers\AnggotaController::class, 'filter'])->name('team.filter');
-        Route::get('create', [App\Http\Controllers\AnggotaController::class, 'create'])->name('team.create');
-        Route::post('create', [App\Http\Controllers\AnggotaController::class, 'store'])->name('team.store');
-        Route::post('create', [App\Http\Controllers\AnggotaController::class, 'store'])->name('team.store');
-        Route::get('/edit/{id}', [App\Http\Controllers\AnggotaController::class, 'edit'])->name('team.edit');
+        Route::get('/', [App\Http\Controllers\TeamController::class, 'index'])->name('team.index');
+        Route::post('create', [App\Http\Controllers\TeamController::class, 'store'])->name('team.create');
+        // Route::post('create', [App\Http\Controllers\TeamController::class, 'store']);
+        Route::get('/{id}/edit', [App\Http\Controllers\TeamController::class, 'edit'])->name('team.edit');
+        Route::put('/{id}/edit', [App\Http\Controllers\TeamController::class, 'update']);
+        Route::delete('/{role}/delete', [App\Http\Controllers\TeamController::class, 'destroy'])->name('team.delete');
+    });
+
+    Route::prefix('tps')->middleware('permission:create team')->group(function () {
+        Route::get('/', [App\Http\Controllers\TpsController::class, 'index'])->name('tps.index');
+        Route::post('create', [App\Http\Controllers\TpsController::class, 'store'])->name('tps.create');
+        // Route::post('create', [App\Http\Controllers\TpsController::class, 'store']);
+        Route::get('/{id}/edit', [App\Http\Controllers\TpsController::class, 'edit'])->name('tps.edit');
+        Route::put('/{id}/edit', [App\Http\Controllers\TpsController::class, 'update']);
+        Route::delete('/{tps}/delete', [App\Http\Controllers\TpsController::class, 'destroy'])->name('tps.delete');
+    });
+
+    Route::prefix('anggota')->middleware('permission:create anggota')->group(function () {
+        Route::get('/', [App\Http\Controllers\AnggotaController::class, 'index'])->name('anggota.index');
+        Route::get('/filter', [App\Http\Controllers\AnggotaController::class, 'filter'])->name('anggota.filter');
+        Route::get('create', [App\Http\Controllers\AnggotaController::class, 'create'])->name('anggota.create');
+        Route::post('create', [App\Http\Controllers\AnggotaController::class, 'store'])->name('anggota.store');
+        Route::post('create', [App\Http\Controllers\AnggotaController::class, 'store'])->name('anggota.store');
+        Route::get('/edit/{id}', [App\Http\Controllers\AnggotaController::class, 'edit'])->name('anggota.edit');
         Route::put('/edit/{id}', [App\Http\Controllers\AnggotaController::class, 'update']);
         Route::delete('/{id}/delete', [App\Http\Controllers\AnggotaController::class, 'destroy'])->name('anggota.delete');
         Route::post('check-nik', [App\Http\Controllers\AnggotaController::class, 'check_nik'])->name('check.nik');

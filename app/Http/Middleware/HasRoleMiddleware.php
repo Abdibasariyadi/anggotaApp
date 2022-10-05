@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 class HasRoleMiddleware
@@ -18,12 +19,12 @@ class HasRoleMiddleware
     public function handle(Request $request, Closure $next)
     {
         $roles = Role::get();
-        if ($request->user()->HasAnyRole($roles)) {
+        if (Auth::check() && $request->user()->HasAnyRole($roles)) {
 
             return $next($request);
         } else {
-            abort(403);
+            // abort(403);
+            return redirect('login');
         }
-
     }
 }

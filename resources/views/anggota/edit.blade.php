@@ -18,6 +18,10 @@
                 @method('PUT') -->
                 <div class="card-body">
                     <div class="row">
+                        <div class="form-group col-8">
+                            <label>NIK</label>
+                            <input type="text" class="form-control" id="nik" name="nik" value="{{ old('nik', $anggota->nik) }}">
+                        </div>
                         <div class="form-group col-4">
                             <label>Team Name</label>
                             <select id="team_id" name="team_id" class="form-control select2 select2-hidden-accessible" tabindex="-1" aria-hidden="true">
@@ -27,13 +31,20 @@
                                 @endforeach
                             </select>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="form-group col-8">
-                            <label>NIK</label>
-                            <input type="text" class="form-control" id="nik" name="nik" value="{{ old('nik', $anggota->nik) }}">
-                        </div>
-                        <div class="form-group">
                             <label>Nama</label>
-                            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $anggota->nama) }}">
+                            <input type="text" class="form-control" id="nama" name="nama" value="{{ old('nama', $anggota->nama) }}" onkeyup="this.value = this.value.toUpperCase()">
+                        </div>
+                        <div class="form-group col-4">
+                            <label>TPS</label>
+                            <select id="tps_id" name="tps_id" class="form-control select2 select2-hidden-accessible" tabindex="-1" aria-hidden="true">
+                                <option disabled selected>--Pilih--</option>
+                                @foreach($tps as $tps)
+                                <option {{($tps->id === $anggota->tps_id) ? 'Selected' : ''}} value="{{ $tps->id }}">{{ $tps->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="row">
@@ -70,8 +81,15 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label class="custom-switch" style="margin-left: -35px;">
+                                <input type="checkbox" name="status" value="2" class="custom-switch-input" {{ old('status', isset($anggota->status) ? 'checked' : '') }}>
+                                <span class="custom-switch-indicator"></span>
+                                <span class="custom-switch-description">Setuju?</span>
+                            </label>
+                        </div>
                     </div>
-                    <button id="saveBtn" class="btn btn-primary">Create</button>
+                    <button id="saveBtn" class="btn btn-primary">Update</button>
                 </div>
             </form>
 
@@ -90,7 +108,7 @@
             submitHandler: function(form) {
                 $('#saveBtn').html('Sending..');
                 $.ajax({
-                    url: "{{ route('team.edit', $anggota->id) }}",
+                    url: "{{ route('anggota.edit', $anggota->id) }}",
                     type: "PUT",
                     data: $('#anggotaForm').serialize(),
                     dataType: "json",
@@ -107,7 +125,7 @@
                             $('#res_message').hide();
                             $('#msg_div').hide();
                         }, 10000);
-                        location.href = "{{ route('team.index') }}";
+                        location.href = "{{ route('anggota.index') }}";
                     }
                 });
             }
@@ -182,36 +200,6 @@
             }
         });
 
-        // $('#anggotaForm').validate({
-        //     rules: {
-        //         nik: {
-        //             required: true
-        //         },
-        //         nama: {
-        //             required: true,
-        //         },
-        //     },
-        //     messages: {
-        //         nik: {
-        //             required: "Please enter nik",
-        //             maxlength: "Your nik maxlength should be 50 characters long."
-        //         },
-        //         nama: {
-        //             required: "Please enter valid email",
-        //         },
-        //     },
-        //     errorElement: 'span',
-        //     errorPlacement: function(error, element) {
-        //         error.addClass('invalid-feedback');
-        //         element.closest('.form-group').append(error);
-        //     },
-        //     highlight: function(element, errorClass, validClass) {
-        //         $(element).addClass('is-invalid');
-        //     },
-        //     unhighlight: function(element, errorClass, validClass) {
-        //         $(element).removeClass('is-invalid');
-        //     }
-        // });
 
         $('#provinsi_id').on('change', function() {
             let id_provinsi = $('#provinsi_id').val();

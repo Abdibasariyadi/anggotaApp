@@ -8,6 +8,7 @@ use Validator;
 use App\Models\Province;
 use App\Models\Regency;
 use App\Models\Team;
+use App\Models\Tps;
 use App\Models\Village;
 use Illuminate\Http\Request;
 use DataTables;
@@ -18,19 +19,19 @@ class AnggotaController extends Controller
     public function index(Request $request)
     {
         $title = "Anggota";
-        // $anggota = Anggota::get();
         $kel = Anggota::getKel();
         $team = Team::get();
-        // $anggota = Anggota::anggota();
-        // dd($anggota);
+        $tps = Tps::get();
 
         if ($request->ajax()) {
             $anggota = Anggota::anggota();
 
-            return DataTables::eloquent($anggota)
+            return DataTables::of($anggota)
+                ->addIndexColumn()
                 ->addColumn('action', function ($row) {
-                    $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
-                    $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
+                    // dd($row->id);
+                    $btn = '<a href="' . url('anggota/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
+                    $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="delete btn btn-danger btn-sm deleteAnggota">Delete</a>';
                     return $btn;
                 })
                 ->rawColumns(['action'])
@@ -38,7 +39,7 @@ class AnggotaController extends Controller
                 ->make(true);
         }
 
-        return view('team.index', compact('title', 'team', 'kel'));
+        return view('anggota.index', compact('title', 'team', 'kel', 'tps'));
     }
 
     public function filter(Request $request)
@@ -47,13 +48,15 @@ class AnggotaController extends Controller
         // $max = date('Y-m-d 23:59:59', strtotime($request->get('max')));
         $team = $request->get('team_id');
         $kel = $request->get('kelurahan');
-        // dd($team);
+        // $tps = $request->get('tps_id');
+        $status = $request->get('status');
+        // dd($status);
 
-        if (!empty($team) && !empty($kel)) {
+        if (!empty($team) && !empty($kel) && !empty($status)) {
 
-            if ($team == 'all') {
+            if ($team == 'all' && $kel == 'all' && $status == 'all') {
 
-                $service = Anggota::filterKel($kel);
+                $service = Anggota::anggota();
                 return Datatables::eloquent($service)
                     ->addColumn('action', function ($row) {
                         $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
@@ -65,7 +68,21 @@ class AnggotaController extends Controller
                     ->make(true);
             }
 
-            if ($kel == 'all') {
+            if ($team == 'all' && $kel == 'all') {
+
+                $service = Anggota::filterStatus($status);
+                return Datatables::eloquent($service)
+                    ->addColumn('action', function ($row) {
+                        $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
+                        $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->addIndexColumn()
+                    ->make(true);
+            }
+
+            if ($kel == 'all' && $status == 'all') {
 
                 $service = Anggota::filterTeam($team);
                 return Datatables::eloquent($service)
@@ -79,7 +96,63 @@ class AnggotaController extends Controller
                     ->make(true);
             }
 
-            $service = Anggota::filterNoDate($team, $kel);
+            if ($status == 'all' && $team == 'all') {
+
+                $service = Anggota::filterKel($kel);
+                return Datatables::eloquent($service)
+                    ->addColumn('action', function ($row) {
+                        $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
+                        $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->addIndexColumn()
+                    ->make(true);
+            }
+
+            if ($team == 'all') {
+
+                $service = Anggota::filterKelStatus($kel, $status);
+                return Datatables::eloquent($service)
+                    ->addColumn('action', function ($row) {
+                        $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
+                        $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->addIndexColumn()
+                    ->make(true);
+            }
+
+            if ($kel == 'all') {
+
+                $service = Anggota::filterTeamStatus($team, $status);
+                return Datatables::eloquent($service)
+                    ->addColumn('action', function ($row) {
+                        $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
+                        $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->addIndexColumn()
+                    ->make(true);
+            }
+
+            if ($status == 'all') {
+
+                $service = Anggota::filterTeamKel($team, $kel);
+                return Datatables::eloquent($service)
+                    ->addColumn('action', function ($row) {
+                        $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
+                        $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->addIndexColumn()
+                    ->make(true);
+            }
+
+            $service = Anggota::filterNoDate($team, $kel, $status);
             return Datatables::eloquent($service)
                 ->addColumn('action', function ($row) {
                     $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
@@ -90,42 +163,15 @@ class AnggotaController extends Controller
                 ->addIndexColumn()
                 ->make(true);
         }
-
-        // if (!empty($min) && !empty($max) && !empty($team)) {
-
-        //     if ($team == 'all') {
-
-        //         $service = Anggota::filterTeam($min, $max);
-        //         return Datatables::eloquent($service)
-        //             ->addColumn('action', function ($row) {
-        //                 $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
-        //                 $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
-        //                 return $btn;
-        //             })
-        //             ->rawColumns(['action'])
-        //             ->addIndexColumn()
-        //             ->make(true);
-        //     }
-
-        //     $service = Anggota::getServices($min, $max, $team);
-        //     return Datatables::eloquent($service)
-        //         ->addColumn('action', function ($row) {
-        //             $btn = '<a href="' . url('team/edit/' . $row->id) . '" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editRole">Edit</a> | ';
-        //             $btn .= '<a href="javascript:void(0)" data-toogle="tooltip" data-id="' . $row->id . '" data-original-title="Delete" class="edit btn btn-danger btn-sm deleteAnggota">Delete</a>';
-        //             return $btn;
-        //         })
-        //         ->rawColumns(['action'])
-        //         ->addIndexColumn()
-        //         ->make(true);
-        // }
     }
 
     public function create()
     {
         $title = "Create Anggota";
         $team = Team::get();
-        $prov = Province::get();
-        return view('team.create', compact('title', 'team', 'prov'));
+        $prov = Province::get()->where('id', '=', '73');
+        $tps = Tps::get();
+        return view('anggota.create', compact('title', 'team', 'prov', 'tps'));
     }
 
     public function store(Request $request)
@@ -134,6 +180,7 @@ class AnggotaController extends Controller
             'team_id' => 'required',
             'nik' => 'required',
             'nama' => 'required',
+            'tps_id' => 'required',
             'provinsi_id' => 'required',
             'kabupaten_id' => 'required',
             'kecamatan_id' => 'required',
@@ -150,10 +197,12 @@ class AnggotaController extends Controller
                 'team_id' => $request->team_id,
                 'nik' => $request->nik,
                 'nama' => $request->nama,
+                'tps_id' => $request->tps_id,
                 'provinsi_id' => $request->provinsi_id,
                 'kabupaten_id' => $request->kabupaten_id,
                 'kecamatan_id' => $request->kecamatan_id,
                 'desa_id' => $request->desa_id,
+                'status' => $request->status,
             ]
         );
 
@@ -177,13 +226,14 @@ class AnggotaController extends Controller
     public function edit($id)
     {
         $title = "Edit Data Anggota";
-        $team = Team::get();
-        $prov = Province::get();
-        $kab = Regency::get();
-        $kec = District::get();
-        $desa = Village::get();
         $anggota = Anggota::findOrFail($id);
-        return view('team.edit', compact('anggota', 'title', 'team', 'prov', 'kab', 'kec', 'desa'));
+        $team = Team::get();
+        $tps = Tps::get();
+        $prov = Province::get()->where('id', '=', '73');
+        $kab = Regency::where('province_id', $anggota->provinsi_id)->orderBy('name', 'asc')->get();
+        $kec = District::where('regency_id', $anggota->kabupaten_id)->orderBy('name', 'asc')->get();
+        $desa = Village::where('district_id', $anggota->kecamatan_id)->orderBy('name', 'asc')->get();
+        return view('anggota.edit', compact('anggota', 'title', 'team', 'prov', 'kab', 'kec', 'desa', 'tps'));
     }
 
     public function update(Request $request, $id)
@@ -192,12 +242,14 @@ class AnggotaController extends Controller
 
         $post->update([
             'team_id' => $request->team_id,
+            'tps_id' => $request->tps_id,
             'nik' => $request->nik,
             'nama' => $request->nama,
             'provinsi_id' => $request->provinsi_id,
             'kabupaten_id' => $request->kabupaten_id,
             'kecamatan_id' => $request->kecamatan_id,
             'desa_id' => $request->desa_id,
+            'status' => $request->status,
         ]);
 
         return response()->json(['success' => 'Anggota Added Successfully!']);

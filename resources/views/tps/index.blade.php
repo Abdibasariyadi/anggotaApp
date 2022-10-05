@@ -10,7 +10,7 @@
     <div class="col-8">
         <div class="card">
             <div class="card-header">
-                <h4>Data Team</h4>
+                <h4>Data TPS</h4>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -38,15 +38,15 @@
     <div class="col-12 col-md-4 col-lg-4">
         <div class="card">
             <div id="headerForm" class="card-header">
-                <h4>Create Team</h4>
+                <h4>Create TPS</h4>
             </div>
-            <form id="teamForm" name="teamForm" method="POST">
-                <input type="hidden" id="team_id" name="team_id">
+            <form id="tpsForm" name="tpsForm" method="POST">
+                <input type="hidden" id="tps_id" name="tps_id">
                 @csrf
                 <div class="card-body">
                     <div class="form-group">
                         <label>Nama</label>
-                        <input type="text" class="form-control" id="nama" name="nama" onkeyup="this.value = this.value.toUpperCase()">
+                        <input type="text" class="form-control" id="name" name="name" onkeyup="this.value = this.value.toUpperCase()">
                     </div>
                     <button id="saveBtn" class="btn btn-primary">Create</button>
                 </div>
@@ -66,14 +66,14 @@
         var table = $('.data-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('team.index') }}",
+            ajax: "{{ route('tps.index') }}",
             columns: [{
                     data: 'DT_RowIndex',
                     name: 'DT_RowIndex'
                 },
                 {
-                    data: 'nama',
-                    name: 'nama'
+                    data: 'name',
+                    name: 'name'
                 },
                 {
                     data: 'created_at',
@@ -93,12 +93,12 @@
             $(this).html('Save');
 
             $.ajax({
-                data: $('#teamForm').serialize(),
-                url: "{{ route('team.create') }}",
+                data: $('#tpsForm').serialize(),
+                url: "{{ route('tps.create') }}",
                 type: "POST",
                 dataType: 'json',
                 success: function(data) {
-                    $("#teamForm").trigger("reset");
+                    $("#tpsForm").trigger("reset");
                     // $('#roleModal').modal('hide');
                     table.draw();
                 },
@@ -111,22 +111,22 @@
 
 
 
-        $('body').on('click', '.editRole', function() {
-            var roleId = $(this).data('id');
-            $.get("{{ route('team.index') }}" + "/" + roleId + "/edit", function(data) {
-                $('#headerForm').html("<h4>Edit Role</h4>");
+        $('body').on('click', '.editTps', function() {
+            var tpsId = $(this).data('id');
+            $.get("{{ route('tps.index') }}" + "/" + tpsId + "/edit", function(data) {
+                $('#headerForm').html("<h4>Edit TPS</h4>");
                 // $('#roleModal').modal('show');
                 // $(".modal-backdrop").hide();
-                $("#team_id").val(data.id);
-                $('#nama').val(data.nama);
+                $("#tps_id").val(data.id);
+                $('#name').val(data.name);
             })
         })
 
 
-        $('body').on('click', '.deleteRole', function() {
-            var roleId = $(this).data('id');
+        $('body').on('click', '.deleteTps', function() {
+            var tpsId = $(this).data('id');
             confirm("Are you sure want to delete!");
-            var url = "team" + '/' + roleId + '/delete';
+            var url = "tps" + '/' + tpsId + '/delete';
             $.ajax({
                 type: "DELETE",
                 url,
